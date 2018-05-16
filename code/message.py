@@ -34,7 +34,7 @@ class Message(Resource):
         connection.close()
 
         if row:
-            return {'message': {'id': row[0], 'author': row[1], 'title': row[2], 'message': row[3]}}
+            return {'message': {'id': row[0], 'author': row[1], 'title': row[2], 'body': row[3]}}
 
 
     def post(self):
@@ -61,6 +61,39 @@ class Message(Resource):
 
         connection.commit()
         connection.close()
+
+
+    def put(self, message_id):
+        request_data = Message.parser.parse_args()
+        message = self.find_message_by_id(message_id)
+
+        updated_message = {'id': message_id, 'author': request_data['author'], 'title': request_data['title'], 'body': request_data['body']}
+        if message:
+            try:
+                self.update(updated_message)
+            except:
+                 return {"message": "An error occurred while updating message"}, 500
+        else:
+            try:
+                self.insert(updated_message)
+            except:
+                return {"message": "An error occurred while inserting message"}, 500
+
+        return updated_message
+
+
+    @classmethod
+    def update(cls, message):
+        connection = sqlite3.connect('message.db')
+        cursor = connection.cursor()
+
+        query = "UPDATE messages SET author=?, title=?, body=? WHERE id = ?"
+        cursor.execute(query, (message['author'], message['title'], message['body'], message['id']))
+
+        connection.commit()
+        connection.close()
+
+        return{'message': 'message updated'}, 204
 
 
 
