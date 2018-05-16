@@ -61,3 +61,20 @@ class Message(Resource):
 
         connection.commit()
         connection.close()
+
+
+
+class MessageList(Resource):
+    def get(self):
+        connection = sqlite3.connect('message.db')
+        cursor = connection.cursor()
+
+        query = "SELECT * FROM messages"
+        result = cursor.execute(query)
+
+        messages = []
+        for row in result:
+            messages.append({'id': row[0], 'author': row[1],  'title': row[2], 'body': row[3]})
+
+        connection.close()
+        return {'messages': messages}, 200
