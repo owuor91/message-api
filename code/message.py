@@ -93,7 +93,20 @@ class Message(Resource):
         connection.commit()
         connection.close()
 
-        return{'message': 'message updated'}, 204
+        return {'message': 'message updated'}, 204
+
+
+    def delete(self, message_id):
+        connection = sqlite3.connect('message.db')
+        cursor = connection.cursor()
+
+        query = "DELETE FROM messages WHERE id=?"
+        cursor.execute(query, (message_id,))
+
+        connection.commit()
+        connection.close()
+
+        return {'message': 'message deleted'}
 
 
 
